@@ -108,14 +108,14 @@ class Car:
         self.p_ex=zeta*(self.f_ex)**tau
 
         # 初始化任务等待队列
-        self.task_wait_queue=TaskWaitCache(max_capacity=2e9)  # 设定缓存最大容量为 2 Gb
+        self.task_wait_queue=TaskWaitCache(max_capacity=200e9)  # 设定缓存最大容量为 200 Gb
         # 当前执行的任务
         self.current_task=None
         #当前连接的RSU
         self.connected_rsu=None
 
 
-        self.task_download_queue=TaskWaitCache(max_capacity=200e9)#这个队列假设永远不满
+        self.task_download_queue=TaskWaitCache(max_capacity=20e11)#这个队列假设永远不满
 
         config = wandb.config
         self.byzantine_attack = config.byzantine_attack
