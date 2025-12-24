@@ -6,8 +6,8 @@ import pandas as pd
 from utils import generate_vehicle_rsu_data
 
 from simulation.cyber_space.TaskModel import Task
-from simulation.network.DQN import DQNSystem
-from simulation.network.IPPO import IPPO
+from simulation.network.DDQN import DDQNSystem
+from simulation.network.A2C import A2C
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -117,27 +117,27 @@ def main():
             # global_actor_path=os.path.join(models_dir, "rsu_global_actor.pth"),
             # global_critic_path=os.path.join(models_dir, "rsu_global_critic.pth")
         )
-    elif offload_model=="PPO":
-        car_offload_model = IPPO(
+    elif offload_model=="A2C":
+        car_offload_model = A2C(
             num_agents=env.num_car_agents,
             obs_dim=env.obs_car_dim,
             n_actions=env.n_car_actions,
             lr=lr,
         )
-        rsu_offload_model = IPPO(
+        rsu_offload_model = A2C(
             num_agents=env.num_rsu_agents,
             obs_dim=env.obs_rsu_dim,
             n_actions=env.n_rsu_actions,
             lr=lr,
         )
-    elif offload_model=="DQN":
-        car_offload_model = DQNSystem(
+    elif offload_model=="DDQN":
+        car_offload_model = DDQNSystem(
             num_agents=env.num_car_agents,
             obs_dim=env.obs_car_dim,
             n_actions=env.n_car_actions,
             lr=lr,
         )
-        rsu_offload_model = DQNSystem(
+        rsu_offload_model = DDQNSystem(
             num_agents=env.num_rsu_agents,
             obs_dim=env.obs_rsu_dim,
             n_actions=env.n_rsu_actions,
