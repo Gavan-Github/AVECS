@@ -318,17 +318,18 @@ if __name__ == "__main__":
     # 定义 Sweep 配置
     sweep_config = {
         "method": "grid",  # 网格搜索
-        "name": f"我的小测试",
+        "name": f"性能分析",
         "parameters": {
             "group_name": {"values": ["varV"]},
             "offload_model": {"values": ["MAPPO"]},
             "num_vehicles": {"values": [25]},
-            "num_rsus": {"values": [4]},
-            "num_episodes": {"values": [150]},
-            "update_timestep": {"values": [1600]},
+            "num_rsus": {"values": [5]},
+            "vehicle_speed": {"values": [20]},
+            "num_episodes": {"values": [10]},
+            "update_timestep": {"values": [50]},
             "federated_timestep": {"values": [100]},
             "lr": {"values": [1e-7]},
-            "byzantine_ratio": {"values": [0.2]},
+            "byzantine_ratio": {"values": [0.28]},
             "completely_trust_ratio": {"values": [0.1]},
             "partly_trust_ratio": {"values": [0.2]},
             # 搜索参数
