@@ -16,13 +16,6 @@ base_folder='..//preprocess//virtual_data//process_data'
 # 定义一个虚拟的多智能体环境
 # -------------------------------
 class DummyMultiAgentEnv:
-    def enhance_car(self):
-        for car in self.car_list.values():
-            car.enhance()
-
-    def enhance_rsu(self):
-        for rsu in self.rsu_list.values():
-            rsu.enhance()
 
     def reset(self):
         self.time_frame = 0
