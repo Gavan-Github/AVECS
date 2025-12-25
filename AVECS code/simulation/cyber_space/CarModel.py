@@ -52,48 +52,31 @@ class Car:
         return time_frame - self.u_t
 
     def reward(self, time_frame):
-        # r = 1 - (self.punish + self.AOI(time_frame)) / self.nu
+        # r=1-(self.punish+self.AOI(time_frame))/self.nu
         # r=-(self.punish + self.AOI(time_frame))
-        r=self.rd-self.punish-self.AOI(time_frame)
+        # r=self.rd-self.punish-self.AOI(time_frame)
+        r = (1 - self.nu) * self.rd - self.nu * (self.punish + self.AOI(time_frame))
         self.reset_reward_punish()
         return r
 
-        # 获得卸载速率
+        # 判断自己下一时刻是否需要有action
 
-    def get_R_up(self, time_frame, rsu=None):
-        if rsu == None:
-            rsu = self.connected_rsu
-        dis = self.distance_to(rsu, time_frame)
-        R_up = self.b_up * math.log2(
-            1 + self.g_0 * (self.dis_star / dis) ** self.theta * self.p_up / (self.b_up * self.N_0))
-        return R_up
+    def is_action_masked(self):
+        return self.STATE == RSU.IDLE and not self.task_wait_queue.empty()
 
-    def __init__(self, car_id, date,state_dim=10,action_dim=2,
-                b_up=10e6,       #上传带宽      Hz
-                b_down=20e6,     #下载带宽      MHz
-                g_0=1e-4,        #路径损失常数
-                dis_star=1,      #参考距离      m
-                N_0=3.981e-21,   #噪声功率      W/Hz
-                p_up=0.1,        #上传功率      W
-                p_down=0.1,      #下载功率      W
-                theta=4,         #路径损失指数
-                zeta=1,
-                tau=3,
-                f_range=
-                [0.6e9,0.8e9,1.0e9,1.8e9],#车辆计算能力   cycles/s  rsu是80e9
-                nu=20,
-                offload_model="MAPPO"
+    def __init__(self, rsu_id, rsu_x, rsu_y, date,
+                 f_ex=10e9,  # 车辆计算能力   cycles/s  rsu是80e9
+                 max_compute_num=4,
+                 reward_mode="AOI",
+                 offload_model="MAPPO"
                  ):
+        self.rsu_id = rsu_id
+        self.STATE = RSU.IDLE
+        self.rsu_x, self.rsu_y = rsu_x, rsu_y
+        self.car_conn_data, self.min_time_frame, self.max_time_frame = self.load_rsu_data(rsu_id, date)
+        self.f_ex = f_ex
 
-        self.b_up=b_up
-        self.b_down=b_down
-        self.g_0=g_0
-        self.dis_star=dis_star
-        self.N_0=N_0
-        self.p_up=p_up
-        self.p_down=p_down
-        self.theta=theta
-        self.nu=nu
+        self.nu = wandb.config.aoi_ratio
 
         # 车辆名
         self.car_id = car_id
@@ -108,14 +91,14 @@ class Car:
         self.p_ex=zeta*(self.f_ex)**tau
 
         # 初始化任务等待队列
-        self.task_wait_queue=TaskWaitCache(max_capacity=200e9)  # 设定缓存最大容量为 200 Gb
+        self.task_wait_queue=TaskWaitCache(max_capacity=2e9)  # 设定缓存最大容量为 2 Gb
         # 当前执行的任务
         self.current_task=None
         #当前连接的RSU
         self.connected_rsu=None
 
 
-        self.task_download_queue=TaskWaitCache(max_capacity=20e11)#这个队列假设永远不满
+        self.task_download_queue=TaskWaitCache(max_capacity=200e9)#这个队列假设永远不满
 
         config = wandb.config
         self.byzantine_attack = config.byzantine_attack
