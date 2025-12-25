@@ -6,8 +6,8 @@ import pandas as pd
 from utils import generate_vehicle_rsu_data
 
 from simulation.cyber_space.TaskModel import Task
-from simulation.network.DDQN import DDQNSystem
-from simulation.network.A2C import A2C
+from simulation.network.DQN import DQNSystem
+from simulation.network.IPPO import IPPO
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -117,27 +117,27 @@ def main():
             # global_actor_path=os.path.join(models_dir, "rsu_global_actor.pth"),
             # global_critic_path=os.path.join(models_dir, "rsu_global_critic.pth")
         )
-    elif offload_model=="A2C":
-        car_offload_model = A2C(
+    elif offload_model=="PPO":
+        car_offload_model = IPPO(
             num_agents=env.num_car_agents,
             obs_dim=env.obs_car_dim,
             n_actions=env.n_car_actions,
             lr=lr,
         )
-        rsu_offload_model = A2C(
+        rsu_offload_model = IPPO(
             num_agents=env.num_rsu_agents,
             obs_dim=env.obs_rsu_dim,
             n_actions=env.n_rsu_actions,
             lr=lr,
         )
-    elif offload_model=="DDQN":
-        car_offload_model = DDQNSystem(
+    elif offload_model=="DQN":
+        car_offload_model = DQNSystem(
             num_agents=env.num_car_agents,
             obs_dim=env.obs_car_dim,
             n_actions=env.n_car_actions,
             lr=lr,
         )
-        rsu_offload_model = DDQNSystem(
+        rsu_offload_model = DQNSystem(
             num_agents=env.num_rsu_agents,
             obs_dim=env.obs_rsu_dim,
             n_actions=env.n_rsu_actions,
@@ -326,19 +326,115 @@ if __name__ == "__main__":
             "num_rsus": {"values": [5]},
             "vehicle_speed": {"values": [20]},
             "num_episodes": {"values": [10]},
-            "update_timestep": {"values": [50]},
-            "federated_timestep": {"values": [100]},
-            "lr": {"values": [1e-7]},
+            "update_timestep": {"values": [100]},
+            "federated_timestep": {"values": [200]},
             "byzantine_ratio": {"values": [0.28]},
             "completely_trust_ratio": {"values": [0.1]},
             "partly_trust_ratio": {"values": [0.2]},
-            # 搜索参数
             "byzantine_attack": {"values": [True, False]},
             "byzantine_defense": {"values": [True, False]},
             "task_arrival_rate": {"values": [0.4]},
-            "max_time_frame": {"values": [1600]}
+            "max_time_frame": {"values": [1600]},
+
+            # 搜索参数
+            "lr": {"values": [1e-7]},
+            "discount_factor": {"values": [0.90]},
+            "aoi_ratio": {"values": [0.4]}
         }
     }
     # 创建 Sweep
     sweep_id = wandb.sweep(sweep_config, project="Digital Twin Enabled Byzantine attack system")
     wandb.agent(sweep_id, function=main)  # 运行 4 次，每次不同参数组合
+
+    # # 定义 Sweep 配置
+    # sweep_config = {
+    #     "method": "grid",  # 网格搜索
+    #     "name": f"对学习率灵敏度实验",
+    #     "parameters": {
+    #         "group_name": {"values": ["varV"]},
+    #         "offload_model": {"values": ["MAPPO"]},
+    #         "num_vehicles": {"values": [25]},
+    #         "num_rsus": {"values": [5]},
+    #         "vehicle_speed": {"values": [20]},
+    #         "num_episodes": {"values": [150]},
+    #         "update_timestep": {"values": [100]},
+    #         "federated_timestep": {"values": [200]},
+    #         "byzantine_ratio": {"values": [0.28]},
+    #         "completely_trust_ratio": {"values": [0.1]},
+    #         "partly_trust_ratio": {"values": [0.2]},
+    #         "byzantine_attack": {"values": [True]},
+    #         "byzantine_defense": {"values": [True]},
+    #         "task_arrival_rate": {"values": [0.4]},
+    #         "max_time_frame": {"values": [1600]},
+    #
+    #         # 搜索参数
+    #         "lr": {"values": [1e-4,1e-6,1e-7,1e-8,1e-9]},
+    #         "discount_factor":{"values": [0.90]},
+    #         "aoi_ratio":{"values": [0.4]}
+    #     }
+    # }
+    # # 创建 Sweep
+    # sweep_id = wandb.sweep(sweep_config, project="Digital Twin Enabled Byzantine attack system")
+    # wandb.agent(sweep_id, function=main)
+    #
+    # # 定义 Sweep 配置
+    # sweep_config = {
+    #     "method": "grid",  # 网格搜索
+    #     "name": f"对折扣因子灵敏度实验",
+    #     "parameters": {
+    #         "group_name": {"values": ["varV"]},
+    #         "offload_model": {"values": ["MAPPO"]},
+    #         "num_vehicles": {"values": [25]},
+    #         "num_rsus": {"values": [5]},
+    #         "vehicle_speed": {"values": [20]},
+    #         "num_episodes": {"values": [150]},
+    #         "update_timestep": {"values": [100]},
+    #         "federated_timestep": {"values": [200]},
+    #         "byzantine_ratio": {"values": [0.28]},
+    #         "completely_trust_ratio": {"values": [0.1]},
+    #         "partly_trust_ratio": {"values": [0.2]},
+    #         "byzantine_attack": {"values": [True]},
+    #         "byzantine_defense": {"values": [True]},
+    #         "task_arrival_rate": {"values": [0.4]},
+    #         "max_time_frame": {"values": [1600]},
+    #
+    #         # 搜索参数
+    #         "lr": {"values": [1e-7]},
+    #         "discount_factor": {"values": [0.85,0.875,0.90, 0.925, 0.95]},
+    #         "aoi_ratio": {"values": [0.4]}
+    #     }
+    # }
+    # # 创建 Sweep
+    # sweep_id = wandb.sweep(sweep_config, project="Digital Twin Enabled Byzantine attack system")
+    # wandb.agent(sweep_id, function=main)
+    #
+    # # 定义 Sweep 配置
+    # sweep_config = {
+    #     "method": "grid",  # 网格搜索
+    #     "name": f"对aoi系数灵敏度实验",
+    #     "parameters": {
+    #         "group_name": {"values": ["varV"]},
+    #         "offload_model": {"values": ["MAPPO"]},
+    #         "num_vehicles": {"values": [25]},
+    #         "num_rsus": {"values": [5]},
+    #         "vehicle_speed": {"values": [20]},
+    #         "num_episodes": {"values": [150]},
+    #         "update_timestep": {"values": [100]},
+    #         "federated_timestep": {"values": [200]},
+    #         "byzantine_ratio": {"values": [0.28]},
+    #         "completely_trust_ratio": {"values": [0.1]},
+    #         "partly_trust_ratio": {"values": [0.2]},
+    #         "byzantine_attack": {"values": [True]},
+    #         "byzantine_defense": {"values": [True]},
+    #         "task_arrival_rate": {"values": [0.4]},
+    #         "max_time_frame": {"values": [1600]},
+    #
+    #         # 搜索参数
+    #         "lr": {"values": [1e-7]},
+    #         "discount_factor": {"values": [0.90]},
+    #         "aoi_ratio": {"values": [0.2, 0.3, 0.4, 0.5, 0.6]}
+    #     }
+    # }
+    # # 创建 Sweep
+    # sweep_id = wandb.sweep(sweep_config, project="Digital Twin Enabled Byzantine attack system")
+    # wandb.agent(sweep_id, function=main)
