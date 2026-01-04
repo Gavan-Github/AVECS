@@ -336,7 +336,7 @@ if __name__ == "__main__":
             "offload_model": {"values": ["MAPPO"]},
             "num_vehicles": {"values": [25]},
             "num_rsus": {"values": [5]},
-            "vehicle_speed": {"values": [20]},
+            "vehicle_speed": {"values": [40]},
             "num_episodes": {"values": [500]},
             "update_timestep": {"values": [50]},
             "federated_timestep": {"values": [100]},
@@ -366,7 +366,7 @@ if __name__ == "__main__":
             "offload_model": {"values": ['DDQN',"A2C"]},
             "num_vehicles": {"values": [25]},
             "num_rsus": {"values": [5]},
-            "vehicle_speed": {"values": [20]},
+            "vehicle_speed": {"values": [40]},
             "num_episodes": {"values": [500]},
             "update_timestep": {"values": [50]},
             "federated_timestep": {"values": [100]},
@@ -395,7 +395,7 @@ if __name__ == "__main__":
             "offload_model": {"values": ["MAPPO"]},
             "num_vehicles": {"values": [25]},
             "num_rsus": {"values": [5]},
-            "vehicle_speed": {"values": [20]},
+            "vehicle_speed": {"values": [40]},
             "num_episodes": {"values": [500]},
             "update_timestep": {"values": [50]},
             "federated_timestep": {"values": [100]},
@@ -425,7 +425,7 @@ if __name__ == "__main__":
             "offload_model": {"values": ["MAPPO"]},
             "num_vehicles": {"values": [25]},
             "num_rsus": {"values": [5]},
-            "vehicle_speed": {"values": [20]},
+            "vehicle_speed": {"values": [40]},
             "num_episodes": {"values": [500]},
             "update_timestep": {"values": [50]},
             "federated_timestep": {"values": [100]},
@@ -445,6 +445,7 @@ if __name__ == "__main__":
     # # 创建 Sweep
     # sweep_id = wandb.sweep(sweep_config, project="Digital Twin Enabled Byzantine attack system")
     # wandb.agent(sweep_id, function=main)  # 运行 4 次，每次不同参数组合
+
 
 
 
